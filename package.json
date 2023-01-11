@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.45"
+    "@xstate/inspect": "^0.7.0",
+    "@xstate/vue": "^2.0.0",
+    "vue": "^3.2.45",
+    "xstate": "^4.35.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
