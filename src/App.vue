@@ -22,20 +22,9 @@ import HelloWorld from './components/HelloWorld.vue'
 
 
 import { useMachine } from '@xstate/vue';
-import { createMachine } from 'xstate';
+import { toggleMachine } from './machine';
 
-const toggleMachine = createMachine({
-  id: 'toggle',
-  initial: 'inactive',
-  states: {
-    inactive: {
-      on: { TOGGLE: 'active' }
-    },
-    active: {
-      on: { TOGGLE: 'inactive' }
-    }
-  }
-});
+
 
 
 const { state, send } = useMachine(toggleMachine, {
