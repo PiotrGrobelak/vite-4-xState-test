@@ -5,9 +5,9 @@ export function services() {
 
 
 
-    const getPokemonById = async function (): Promise<any> {
+    const getPokemonById = async function (id: number): Promise<any> {
         try {
-            let response = await fetch('https://pokeapi.co/api/v2/pokemon/5');
+            let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
             if (response.status === 200) {
                 return await response.json();
             } else {

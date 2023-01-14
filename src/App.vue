@@ -14,6 +14,11 @@
     : 'Active! Click to deactivate'
     }}
   </button>
+  <pre>
+    {{ state.context.pokoemon1 }}
+  </pre>
+    <pre>
+  </pre>
 </template>
 
 
