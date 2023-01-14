@@ -26,7 +26,6 @@ import { toggleMachine } from './machine';
 
 
 
-
 const { state, send } = useMachine(toggleMachine, {
   devTools: true
 });

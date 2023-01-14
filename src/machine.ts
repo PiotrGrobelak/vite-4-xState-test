@@ -1,38 +1,42 @@
-import { createMachine } from "xstate";
+import { assign, createMachine } from "xstate";
+import { services  } from './services'
 
-export const toggleMachine =
-/** @xstate-layout N4IgpgJg5mDOIC5QBcD2UoBswDoCWAdgIYDGyeAbmAMQAqA8gOKMAyAogNoAMAuoqAAdUsPOVQF+IAB6IAjAFZZAGhABPRPICcAX20q0GbDlLkqdJq069JQkWIlJpcxSvUIAHDnm796LLhNKGjYqAmQAAgAmbj5HW1E8cUkZBAAWLlkcAGZZSPlXOU8s4pLSktlUnxADfxwAMzBkEgALfAJqKFQYm2EEpMcU+QB2SOzc-LU5ADZMsrni2Sqaowam1sJI6hCwMPDZbrje+2TEVPSxvIKESJuvd3nSxaqCVAg4SWWwHrtEh1AUgC0kVSVwBQx0emqfiMhECVG+fT+TmuIMmCAqdweJUiEN8hgCZCCCOOA0QkSG8guEzcsiGOC49yxxSW0NwqxaxN+JwQilGOUuaNy2SZC0qkM+9UaLTanP6-w0U00VKumk8jKZTzxtXZ6wIkVlSMGUy4yrRN1mIpyul0QA */
-createMachine({
+
+const { getPokemonById } = services();
+
+
+export const toggleMachine = createMachine({
   id: 'toggle',
+  predictableActionArguments: true,
   initial: 'inactive',
-
+  context: {
+    pokoemon: null,
+  },
   states: {
     inactive: {
-      on: { TOGGLE: 'active' }
+      on: { TOGGLE: 'fetchPokemon' }
     },
-
     active: {
       on: {
         TOGGLE: 'inactive',
-        "Event 2": "fetch"
       }
     },
-
-    fetch: {
-      states: {
-        in: {
-          on: {
-            go: "in2"
-          }
-        },
-
-        in2: {
-          on: {
-            "Event 1": "#toggle.inactive"
+    fetchPokemon: {
+      // @ts-ignore
+        invoke: {
+          id: 'getPokemonById',
+          src: getPokemonById,
+          onDone:{
+            target: 'inactive',
+            actions: assign({pokoemon: (ctx, ev) => ev.data})
+          },
+          onError: {
+            target: 'inactive'
           }
         }
-      },
-      initial: "in"
+    },
+    end: {
+      type: 'final'
     }
   }
 });
