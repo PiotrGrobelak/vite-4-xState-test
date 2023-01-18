@@ -9,23 +9,30 @@
   </div>
   <button @click="send('TOGGLE')">
     {{
-  state.value === 'inactive'
-    ? 'Click to activate'
-    : 'Active! Click to deactivate'
+      state.value === 'inactive'
+        ? 'Click to activate'
+        : 'Active! Click to deactivate'
     }}
   </button>
-  <pre>
-    {{ state.context.pokoemon1 }}
-  </pre>
-    <pre>
-  </pre>
+  <div>
+    Actual state: {{ state.value }}
+  </div>
+  <div v-if="state.context.pokemonOne">
+    Name: {{ state.context.pokemonOne?.name }}
+  </div>
+  <div v-if="state.context.pokemonTwo">
+    Name: {{ state.context.pokemonTwo?.name }}
+  </div>
+  <div v-if="state.context.pokemonThree">
+    Name: {{ state.context.pokemonThree?.name }}
+  </div>
+  <div v-if="state.context.pokemonFour">
+    Name: {{ state.context.pokemonFour?.name }}
+  </div>
 </template>
 
 
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-
-
 import { useMachine } from '@xstate/vue';
 import { toggleMachine } from './machine';
 

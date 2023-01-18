@@ -1,23 +1,56 @@
-import { assign, createMachine } from "xstate";
-import { services  } from './services'
-
+import { assign, createMachine, DoneInvokeEvent } from "xstate";
+import { services } from './services'
 
 const { getPokemonById } = services();
 
 
-export const toggleMachine = createMachine({
+type Events = {
+  type: 'TOGGLE'
+}
+
+
+type Context = {
+  pokemonOne: any
+  pokemonTwo: any
+  pokemonThree: any
+  pokemonFour: any
+}
+
+type ContextWithReadyFirstPokemon = Context & {
+  pokemonOne: number
+}
+
+
+type AllContextes = Context | ContextWithReadyFirstPokemon
+
+
+type State = {
+  value: 'inactive',
+  context: Context
+} | {
+  value: 'active',
+  context: Context
+} | {
+  value: 'fetchPokemonOne',
+  context: ContextWithReadyFirstPokemon
+} | {
+  value: 'waiting',
+  context: ContextWithReadyFirstPokemon
+}
+
+export const toggleMachine = createMachine<AllContextes, Events, State>({
   id: 'toggle',
   predictableActionArguments: true,
   initial: 'inactive',
   context: {
-    pokoemon1: null,
-    pokoemon2: null,
-    pokoemon3: null,
-    pokoemon4: null,
+    pokemonOne: null,
+    pokemonTwo: null,
+    pokemonThree: null,
+    pokemonFour: null
   },
   states: {
     inactive: {
-      on: { TOGGLE: 'waiting' }
+      on: { TOGGLE: 'fetchPokemonOne' }
     },
     active: {
       on: {
@@ -25,65 +58,61 @@ export const toggleMachine = createMachine({
       }
     },
     fetchPokemonOne: {
-      // @ts-ignore
-        invoke: {
-          id: 'getPokemonById1',
-          src: getPokemonById(1),
-          onDone:{
-            target: 'waiting',
-            actions: assign({pokoemon1: (ctx, ev) => ev.data})
-          },
-          onError: {
-            target: 'inactive'
-          }
+      invoke: {
+        id: 'getPokemonById1',
+        src: () => getPokemonById(1),
+        onDone: {
+          target: 'waiting',
+          actions: assign<Context, DoneInvokeEvent<number>>({ pokemonOne: (ctx: any, ev: { data: number }) => ev.data }) // for test type safe
+        },
+        onError: {
+          target: 'inactive'
         }
+      }
     },
     waiting: {
       always: {
-          target: 'fetchPokemonTwo'
+        target: 'fetchPokemonTwo'
       }
     },
     fetchPokemonTwo: {
-      // @ts-ignore
-        invoke: {
-          id: 'getPokemonById2',
-          src: getPokemonById(2),
-          onDone:{
-            target: 'fetchPokemonThree',
-            actions: assign({pokoemon2: (ctx, ev) => ev.data})
-          },
-          onError: {
-            target: 'inactive'
-          }
+      invoke: {
+        id: 'getPokemonById2',
+        src: () => getPokemonById(2),
+        onDone: {
+          target: 'fetchPokemonThree',
+          actions: assign({ pokemonTwo: (ctx, ev) => ev.data })
+        },
+        onError: {
+          target: 'inactive'
         }
+      }
     },
     fetchPokemonThree: {
-      // @ts-ignore
-        invoke: {
-          id: 'getPokemonById3',
-          src: getPokemonById(3),
-          onDone:{
-            target: 'fetchPokemonFour',
-            actions: assign({pokoemon3: (ctx, ev) => ev.data})
-          },
-          onError: {
-            target: 'inactive'
-          }
+      invoke: {
+        id: 'getPokemonById3',
+        src: () => getPokemonById(3),
+        onDone: {
+          target: 'fetchPokemonFour',
+          actions: assign({ pokemonThree: (ctx, ev) => ev.data })
+        },
+        onError: {
+          target: 'inactive'
         }
+      }
     },
     fetchPokemonFour: {
-      // @ts-ignore
-        invoke: {
-          id: 'getPokemonById4',
-          src: getPokemonById(4),
-          onDone:{
-            target: 'end',
-            actions: assign({pokoemon4: (ctx, ev) => ev.data})
-          },
-          onError: {
-            target: 'inactive'
-          }
+      invoke: {
+        id: 'getPokemonById4',
+        src: () => getPokemonById(4),
+        onDone: {
+          target: 'end',
+          actions: assign({ pokemonFour: (ctx, ev) => ev.data })
+        },
+        onError: {
+          target: 'inactive'
         }
+      }
     },
     end: {
       type: 'final'
